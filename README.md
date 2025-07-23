@@ -1,0 +1,2 @@
+# efficient_gmapping
+针对空旷地带的高效gmapping手段
