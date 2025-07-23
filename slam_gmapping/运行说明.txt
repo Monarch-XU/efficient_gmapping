@@ -1,0 +1,5 @@
+先放到{catkin_ws}\src下后到工作空间编译
+
+跑改过的gmapping的话运行下面的launch：
+
+roslaunch gmapping slam_gmapping_pr2.launch

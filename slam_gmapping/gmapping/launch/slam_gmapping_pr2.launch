@@ -1,0 +1,152 @@
+<!-- <launch>
+    <param name="use_sim_time" value="true"/>
+    <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
+
+
+      <param name="base_frame" value="base_link"/>
+      <param name="map_frame" value="map"/>
+      <param name="odom_frame" value="map_init"/>
+
+
+      <remap from="scan" to="/scan"/>
+      <param name="map_update_interval" value="0.2"/>
+      <param name="maxUrange" value="16.0"/>
+      <param name="sigma" value="0.05"/>
+      <param name="kernelSize" value="1"/>
+      <param name="lstep" value="0.05"/>
+      <param name="astep" value="0.05"/>
+      <param name="iterations" value="5"/>
+      <param name="lsigma" value="0.075"/>
+      <param name="ogain" value="3.0"/>
+      <param name="lskip" value="0"/>
+      <param name="srr" value="0.1"/>
+      <param name="srt" value="0.2"/>
+      <param name="str" value="0.1"/>
+      <param name="stt" value="0.2"/>
+      <param name="linearUpdate" value="1.0"/>
+      <param name="angularUpdate" value="0.5"/>
+      <param name="temporalUpdate" value="3.0"/>
+      <param name="resampleThreshold" value="0.5"/>
+      <param name="particles" value="30"/>
+      <param name="xmin" value="-50.0"/>
+      <param name="ymin" value="-50.0"/>
+      <param name="xmax" value="50.0"/>
+      <param name="ymax" value="50.0"/>
+      <param name="delta" value="0.05"/>
+      <param name="llsamplerange" value="0.01"/>
+      <param name="llsamplestep" value="0.01"/>
+      <param name="lasamplerange" value="0.005"/>
+      <param name="lasamplestep" value="0.005"/>
+
+      <param name="obstacles_ray_count" value="60"/>
+
+      
+    </node>
+</launch> -->
+
+
+
+<launch>
+
+  <param name="use_sim_time" value="true"/>
+
+  <!-- tf 重映射 -->
+  <!-- <node name="tf_remap" pkg="remap_manager" type="tf_remap" output="screen" /> -->
+
+  <!-- scan 重映射 -->
+  <!-- <node name="scan_remap" pkg="remap_manager" type="scan_remap" output="screen">
+      <param name="input_topic" value="/scan" />
+      <param name="output_topic" value="/scan_base_link" />
+      <param name="target_frame" value="base_link" />
+  </node> -->
+
+
+  <!-- 改为使用 gmapping 建图 -->
+
+  <!-- 设置激光雷达话题名（默认是 "scan"，可通过传参修改） -->
+  <!-- <arg name="scan_topic" default="scan_base_link" /> -->
+  <arg name="scan_topic" default="scan" />
+
+  <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen" clear_params="true">
+
+    
+
+    <!-- 设置 base_frame，也就是机器人坐标系，通常为 base_link 或 body -->
+    <param name="base_frame" value="base_link"/>
+    <!-- 地图坐标轴 -->
+    <param name="map_frame" value="map"/>
+    <!-- 设置 odom_frame，对应机器人里程计坐标系 -->
+    <param name="odom_frame" value="map_init"/>
+    <!-- 地图更新周期（单位：秒），设置为 0.2 秒更新一次地图 -->
+    <param name="map_update_interval" value="0.1"/>
+    <!-- 激光雷达最大可测距离（单位：米），建议设置略大于 maxUrange -->
+    <param name="maxRange" value="40.5"/>
+    <!-- 实际使用的最大有效测距范围，小于 maxRange，以避免边缘不稳定数据 -->
+    <param name="maxUrange" value="40.0"/>
+    <!-- 高斯噪声的标准差（单位：米），影响地图的平滑程度 -->
+    <param name="sigma" value="0.05"/>
+    <!-- 用于 scan matching 的窗口大小（单位：栅格） -->
+    <param name="kernelSize" value="1"/>
+    <!-- 位移步长（单位：米），用于 scan matching 过程中平移搜索粒度 -->
+    <param name="lstep" value="0.05"/>
+    <!-- 角度步长（单位：弧度），用于 scan matching 中角度搜索粒度 -->
+    <param name="astep" value="0.05"/>
+    <!-- scan matching 的最大迭代次数 -->
+    <param name="iterations" value="5"/>
+    <!-- 激光匹配中用到的权重系数 -->
+    <param name="lsigma" value="0.075"/>
+    <!-- scan matching 的优化增益，用于控制优化强度 -->
+    <param name="ogain" value="3.0"/>
+    <!-- 激光点跳过间隔（0 表示每个点都处理） -->
+    <param name="lskip" value="0"/>
+    <!-- 里程计位移误差（旋转前） -->
+    <param name="srr" value="0.01"/>
+    <!-- 里程计旋转误差（旋转前） -->
+    <param name="srt" value="0.02"/>
+    <!-- 里程计位移误差（旋转后） -->
+    <param name="str" value="0.01"/>
+    <!-- 里程计旋转误差（旋转后） -->
+    <param name="stt" value="0.02"/>
+    <!-- 线速度累计超过 0.1 时进行一次更新 -->
+    <param name="linearUpdate" value="0.1"/>
+    <!-- 角速度累计超过 0.087(5°)时进行一次更新 -->
+    <param name="angularUpdate" value="0.174"/>
+    <!-- 时间累计更新间隔（-1 表示不按时间触发更新） -->
+    <param name="temporalUpdate" value="1"/>
+    <!-- 重采样阈值，当粒子滤波分布差异较大时进行重采样 -->
+    <param name="resampleThreshold" value="0.5"/>
+    <!-- 粒子数目，影响精度与性能，一般 30~100 之间 -->
+    <param name="particles" value="80"/>
+    <!-- 地图的最小/最大边界坐标（单位：米） -->
+    <param name="xmin" value="-100.0"/>
+    <param name="ymin" value="-100.0"/>
+    <param name="xmax" value="100.0"/>
+    <param name="ymax" value="100.0"/>
+    <!-- 地图分辨率（单位：米/格） -->
+    <param name="delta" value="0.1"/>
+    <!-- 位姿采样粒子的线性范围和步长 -->
+    <param name="llsamplerange" value="0.01"/>
+    <param name="llsamplestep" value="0.01"/>
+    <!-- 位姿采样粒子的角度范围和步长 -->
+    <param name="lasamplerange" value="0.005"/>
+    <param name="lasamplestep" value="0.005"/>
+    <!-- 将订阅的 scan 话题映射为指定名称 -->
+    <remap from="scan" to="$(arg scan_topic)"/>
+
+
+    <!-- 以下为检测到inf时候的处理的相关参数 -->
+
+    <!-- 检测到过大值时，向左右检测有效激光束的数目 -->
+    <param name="obstacles_ray_count" value="14"/>
+    <!--对极大值作处理的角度，以前进方向左右扩展inf_process_range_度，单位是弧度制-->
+    <param name="forward_angle_range" value="1.04"/>
+    <!--对极大值作处理时向前扩展的距离，单位是米-->
+    <param name="inf_forward_dist" value="12"/>
+
+
+  </node>
+
+
+
+
+</launch>
